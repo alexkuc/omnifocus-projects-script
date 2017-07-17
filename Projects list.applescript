@@ -1,20 +1,64 @@
-tell application "OmniFocus"
-	set currentDate to current date
-	set allProjects to a reference to flattened projects of default document
-	set listProjects to allProjects whose status is active and (defer date > currentDate or defer date is missing value)
-end tell
+use application "OmniFocus"
+
+use scripting additions
 
 tell application "OmniOutliner"
-	activate
+	
 	set template to ((path to application support from user domain as string) & "The Omni Group:OmniOutliner:Templates:" & "Blank.oo3template:")
+	
+	set currentDate to current date
+	
+	activate
+	
 	open template
+	
 	tell front document
-		repeat with thisProject in listProjects
-			set urlProject to "omnifocus:///task/" & (id of thisProject)
-			set nameProject to name of thisProject
-			set newRow to make new row with properties {topic:nameProject} at end of (parent of last row)
-			set value of attribute named "link" of style of newRow to urlProject
+		
+		set title of second column to "Project Name"
+		
+		make new column with properties {title:"Project Status", sort order:ascending}
+		
+		make new column with properties {title:"Project Due Date", column type:datetime}
+		
+		repeat with thisProject in (flattened projects of default document whose status is active)
+			
+			if text of second cell of first row is equal to "" then
+				
+				set newRow to first row
+				
+			else
+				
+				set newRow to make new row at end of (parent of last row)
+				
+			end if
+			
+			set text of second cell of newRow to name of thisProject
+			
+			if ((number of tasks of thisProject) - (number of completed tasks of thisProject)) is equal to 0 then
+				
+				set statusProject to "stalled"
+				
+			else if (defer date of thisProject) is greater than currentDate then
+				
+				set statusProject to "deferred"
+				
+			else
+				set statusProject to status of thisProject as string
+				
+			end if
+			
+			set value of attribute named "link" of style of text of second cell of newRow to "omnifocus:///task/" & id of thisProject
+			
+			set text of third cell of newRow to statusProject
+			
+			if due date of thisProject is not equal to missing value then
+				
+				set value of fourth cell of newRow to due date of thisProject as date
+				
+			end if
+			
 		end repeat
-		delete first row
+		
 	end tell
+	
 end tell
