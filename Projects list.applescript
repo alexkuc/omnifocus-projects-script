@@ -31,6 +31,12 @@ tell application "OmniOutliner"
 		
 		repeat with thisProject in (flattened projects of default document whose status is active)
 			
+			using terms from application "OmniFocus" --- workaround for "folder" term collision (future use)
+				
+				
+				
+			end using terms from
+			
 			if text of second cell of first row is equal to "" then
 				
 				set newRow to first row
