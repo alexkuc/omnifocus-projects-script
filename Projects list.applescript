@@ -4,7 +4,16 @@ use scripting additions
 
 tell application "OmniOutliner"
 	
-	set template to ((path to application support from user domain as string) & "The Omni Group:OmniOutliner:Templates:" & "Blank.oo3template:")
+	if version > 5 then
+		
+		set template to ((path to application support from user domain as string) & "The Omni Group:OmniOutliner:Pro Templates:" & "Blank.otemplate:") --- template path for OO5
+		
+	else
+		
+		set template to ((path to application support from user domain as string) & "The Omni Group:OmniOutliner:Templates:" & "Blank.oo3template:") --- template for OO3 or OO4
+		
+	end if
+	
 	
 	set currentDate to current date
 	
