@@ -49,13 +49,13 @@ tell application "OmniOutliner"
 			
 			set text of second cell of newRow to name of thisProject
 			
-			if ((number of tasks of thisProject) - (number of completed tasks of thisProject)) is equal to 0 then
-				
-				set statusProject to "stalled"
-				
-			else if (defer date of thisProject) is greater than currentDate then
+			if (defer date of thisProject) is greater than currentDate then
 				
 				set statusProject to "deferred"
+				
+			else if ((number of tasks of thisProject) - (number of completed tasks of thisProject)) is equal to 0 then
+				
+				set statusProject to "stalled"
 				
 			else
 				set statusProject to status of thisProject as string
