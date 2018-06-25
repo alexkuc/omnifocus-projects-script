@@ -95,17 +95,9 @@ tell application "OmniOutliner"
 					
 					set statusProject to "deferred"
 					
-				else if next task of thisProject is missing value and sequential of thisProject is true then
+				else if number of available tasks of thisProject is less than 1 then
 					
 					set statusProject to "deferred"
-					
-				else if next task of thisProject is not missing value and sequential of thisProject is true then
-					
-					if name of context of next task of thisProject is "Wait for" then
-						
-						set statusProject to "deferred"
-						
-					end if
 					
 				end if
 				
