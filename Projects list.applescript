@@ -29,11 +29,43 @@ tell application "OmniOutliner"
 		
 		make new column with properties {title:"Project Due Date", column type:datetime}
 		
-		repeat with thisProject in (flattened projects of default document whose status is active)
+		make new column with properties {title:"Root Folder"}
+		
+		repeat with thisProject in (flattened projects of default document whose (status is not done) and (status is not dropped))
 			
 			using terms from application "OmniFocus" --- workaround for "folder" term collision (future use)
 				
+				set rootFolderName to folder of thisProject
 				
+				if rootFolderName is missing value then --- checking for root level projects
+					
+					set rootFolderName to "n/a"
+					
+					set foundrootFolderName to true
+					
+				else
+					
+					set foundrootFolderName to false
+					
+				end if
+				
+				repeat until foundrootFolderName is true
+					
+					set upperFolder to container of rootFolderName
+					
+					if name of upperFolder is equal to "OmniFocus" then
+						
+						set rootFolderName to name of rootFolderName as string
+						
+						set foundrootFolderName to true
+						
+					else
+						
+						set rootFolderName to upperFolder
+						
+					end if
+					
+				end repeat
 				
 			end using terms from
 			
@@ -71,6 +103,8 @@ tell application "OmniOutliner"
 				set value of fourth cell of newRow to due date of thisProject as date
 				
 			end if
+			
+			set text of fifth cell of newRow to rootFolderName as string
 			
 		end repeat
 		
