@@ -81,17 +81,33 @@ tell application "OmniOutliner"
 			
 			set text of second cell of newRow to name of thisProject
 			
-			if (defer date of thisProject) is greater than currentDate then
-				
-				set statusProject to "deferred"
-				
-			else if ((number of tasks of thisProject) - (number of completed tasks of thisProject)) is equal to 0 then
-				
-				set statusProject to "stalled"
-				
-			else
+			set statusProject to status of thisProject as string
 			
-				set statusProject to status of thisProject as string
+			if statusProject is not equal to "on hold" then
+				
+				if ((number of tasks of thisProject) - (number of completed tasks of thisProject)) is equal to 0 then
+					
+					set statusProject to "stalled"
+					
+				end if
+				
+				if (defer date of thisProject) is greater than currentDate then
+					
+					set statusProject to "deferred"
+					
+				else if next task of thisProject is missing value and sequential of thisProject is true then
+					
+					set statusProject to "deferred"
+					
+				else if next task of thisProject is not missing value and sequential of thisProject is true then
+					
+					if name of context of next task of thisProject is "Wait for" then
+						
+						set statusProject to "deferred"
+						
+					end if
+					
+				end if
 				
 			end if
 			
