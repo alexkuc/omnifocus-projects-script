@@ -90,6 +90,7 @@ tell application "OmniOutliner"
 				set statusProject to "stalled"
 				
 			else
+			
 				set statusProject to status of thisProject as string
 				
 			end if
