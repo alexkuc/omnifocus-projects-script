@@ -99,6 +99,38 @@ tell application "OmniOutliner"
 					
 					set statusProject to "deferred"
 					
+				else if (number of available tasks of thisProject is greater than or equal to 1) and (singleton action holder of thisProject as boolean is false) then
+					
+					set i to 0
+					
+					if (sequential of thisProject as boolean is true) then
+						
+						if (name of context of next task of thisProject as string) contains "wait" then
+							
+							set i to i + 1
+							
+						end if
+						
+					else
+						
+						repeat with thisTask in (every task of thisProject whose completed is not true)
+							
+							if (name of context of thisTask as string) contains "wait" then
+								
+								set i to i + 1
+								
+							end if
+							
+						end repeat
+						
+					end if
+					
+					if i is equal to number of available tasks of thisProject then
+						
+						set statusProject to "deferred"
+						
+					end if
+					
 				end if
 				
 			end if
