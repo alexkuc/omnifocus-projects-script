@@ -41,15 +41,15 @@ tell application "OmniOutliner"
 					
 					set rootFolderName to "n/a"
 					
-					set foundrootFolderName to true
+					set foundRootFolderName to true
 					
 				else
 					
-					set foundrootFolderName to false
+					set foundRootFolderName to false
 					
 				end if
 				
-				repeat until foundrootFolderName is true
+				repeat until foundRootFolderName is true
 					
 					set upperFolder to container of rootFolderName
 					
@@ -57,7 +57,7 @@ tell application "OmniOutliner"
 						
 						set rootFolderName to name of rootFolderName as string
 						
-						set foundrootFolderName to true
+						set foundRootFolderName to true
 						
 					else
 						
