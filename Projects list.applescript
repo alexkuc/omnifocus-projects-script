@@ -93,7 +93,7 @@ tell application "OmniOutliner"
 					
 					set statusProject to "deferred"
 					
-				else if number of available tasks of thisProject is less than 1 then
+				else if number of available tasks of thisProject is 0 then
 					
 					set statusProject to "deferred"
 					
