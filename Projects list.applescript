@@ -89,9 +89,7 @@ tell application "OmniOutliner"
 					
 					set statusProject to "stalled"
 					
-				end if
-				
-				if (defer date of thisProject) is greater than currentDate then
+				else if (defer date of thisProject) is greater than currentDate then
 					
 					set statusProject to "deferred"
 					
