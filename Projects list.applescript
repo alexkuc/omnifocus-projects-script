@@ -125,7 +125,7 @@ tell application "OmniOutliner"
 					
 					if i is equal to number of available tasks of thisProject then
 						
-						set statusProject to "deferred"
+						set statusProject to "waiting for 3rd party"
 						
 					end if
 					
