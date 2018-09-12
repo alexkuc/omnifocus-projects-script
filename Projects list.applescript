@@ -83,7 +83,11 @@ tell application "OmniOutliner"
 			
 			set statusProject to status of thisProject as string
 			
-			if statusProject is not equal to "on hold" then
+			if singleton action holder of thisProject as boolean is true then
+				
+				set statusProject to "single actions list"
+				
+			else if statusProject is not equal to "on hold" then
 				
 				if ((number of tasks of thisProject) - (number of completed tasks of thisProject)) is equal to 0 then
 					
