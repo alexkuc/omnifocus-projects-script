@@ -89,13 +89,13 @@ tell application "OmniOutliner"
 				
 			else if statusProject is not equal to "on hold" then
 				
-				if ((number of tasks of thisProject) - (number of completed tasks of thisProject)) is equal to 0 then
-					
-					set statusProject to "stalled"
-					
-				else if (defer date of thisProject) is greater than currentDate then
+				if (defer date of thisProject) is greater than currentDate then
 					
 					set statusProject to "deferred"
+					
+				else if ((number of tasks of thisProject) - (number of completed tasks of thisProject)) is equal to 0 then
+					
+					set statusProject to "stalled"
 					
 				else if number of available tasks of thisProject is 0 then
 					
