@@ -22,6 +22,12 @@ tell application "OmniOutliner"
 	
 	tell front document
 		
+		tell application "OmniFocus"
+			
+			set _versionOF to version as string
+			
+		end tell
+		
 		set title of second column to "Project Name"
 		
 		make new column with properties {title:"Project Status", sort order:ascending}
@@ -30,7 +36,7 @@ tell application "OmniOutliner"
 		
 		make new column with properties {title:"Root Folder"}
 		
-		repeat with thisProject in (flattened projects of default document whose (status is not done) and (status is not dropped))
+		repeat with thisProject in (flattened projects of default document whose (status is active) or (status is on hold))
 			
 			using terms from application "OmniFocus" --- workaround for "folder" term collision (future use)
 				
@@ -106,7 +112,17 @@ tell application "OmniOutliner"
 					
 					if (sequential of thisProject as boolean is true) then
 						
-						if (name of context of next task of thisProject as string) contains "wait" then
+						if _versionOF ³ 3 then
+							
+							set _context to name of primary tag of next task of thisProject as string
+							
+						else
+							
+							set _context to name of context of next task of thisProject as string
+							
+						end if
+						
+						if _context is not missing value and _context contains "wait" then
 							
 							set i to i + 1
 							
@@ -116,9 +132,25 @@ tell application "OmniOutliner"
 						
 						repeat with thisTask in (every task of thisProject whose completed is not true)
 							
-							if (name of context of thisTask as string) contains "wait" then
+							if _versionOF ³ 3 then
 								
-								set i to i + 1
+								try --- hacky solution around primary tag missing value
+									
+									if (name of primary tag of thisTask as string) contains "wait" then
+										
+										set i to i + 1
+										
+									end if
+									
+								end try
+								
+							else
+								
+								if (name of context of thisTask as string) contains "wait" then
+									
+									set i to i + 1
+									
+								end if
 								
 							end if
 							
