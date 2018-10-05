@@ -4,7 +4,7 @@ use scripting additions
 
 tell application "OmniOutliner"
 	
-	if version > 5 then
+	if version ³ 5 then
 		
 		set template to ((path to application support from user domain as string) & "The Omni Group:OmniOutliner:Pro Templates:" & "Blank.otemplate:") --- template path for OO5
 		
