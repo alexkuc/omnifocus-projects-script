@@ -14,7 +14,6 @@ tell application "OmniOutliner"
 		
 	end if
 	
-	
 	set currentDate to current date
 	
 	activate
