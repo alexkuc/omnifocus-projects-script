@@ -24,21 +24,52 @@ tell application "OmniOutliner"
 		
 		tell application "OmniFocus"
 			
-			set _versionOF to version as string
+			if version < 3 then
+				
+				error "You need to have OmniFocus version 3 or later. Early versions are not supported!"
+				
+			end if
 			
 		end tell
 		
+		
 		set title of second column to "Project Name"
 		
-		make new column with properties {title:"Project Status", sort order:ascending}
+		(*
+		
+		create columns in OmniOutliner
+		
+		*)
+		
+		make new column with properties {title:"Project Status"}
 		
 		make new column with properties {title:"Project Due Date", column type:datetime}
 		
-		make new column with properties {title:"Root Folder"}
+		make new column with properties {title:"Root Folder", sort order:ascending}
 		
-		repeat with thisProject in (flattened projects of default document whose (status is active) or (status is on hold))
+		(*
+		
+		iterate through projects which are (must match ALL conditions):
+		
+		- active
+		
+		- on hold
+		
+		- not dropped
+		
+		- not (effectively) dropped
+		
+		*)
+		
+		repeat with thisProject in (flattened projects of default document whose (effective status is active status or effective status is on hold status))
 			
-			using terms from application "OmniFocus" --- workaround for "folder" term collision (future use)
+			using terms from application "OmniFocus" --- workaround for "folder" term collision (future use)	
+				
+				(*
+				
+				find root folder of the project (start section)
+				
+				*)
 				
 				set rootFolderName to folder of thisProject
 				
@@ -74,6 +105,12 @@ tell application "OmniOutliner"
 				
 			end using terms from
 			
+			(*
+			
+			create new row in OmniOutliner
+			
+			*)
+			
 			if text of second cell of first row is equal to "" then
 				
 				set newRow to first row
@@ -84,99 +121,167 @@ tell application "OmniOutliner"
 				
 			end if
 			
+			(*
+			
+			add OmniFocus project name and create deep link to it
+			
+			*)
+			
 			set text of second cell of newRow to name of thisProject
 			
-			set statusProject to status of thisProject as string
+			set value of attribute named "link" of style of text of second cell of newRow to "omnifocus:///task/" & id of thisProject
+			
+			(*
+			
+			add OmniFocus project status
+			
+			*)
+			
+			set projectStatus to status of thisProject as string
+			
+			--- singleton projects are not given granularity as they simply hold a list of tasks (actions)
 			
 			if singleton action holder of thisProject as boolean is true then
 				
-				set statusProject to "single actions list"
+				set projectStatus to "action list"
 				
-			else if statusProject is not equal to "on hold" then
+			else
 				
-				if (defer date of thisProject) is greater than currentDate then
+				--- regular (active) projects (sequential or parallel) are given high level granurality
+				
+				if thisProject's status is active status then
 					
-					set statusProject to "deferred"
+					--- internal variables used to determine project's status
 					
-				else if ((number of tasks of thisProject) - (number of completed tasks of thisProject)) is equal to 0 then
+					set cAvailTasks to 0
 					
-					set statusProject to "stalled"
+					set cAvailTasksTags to 0
 					
-				else if number of available tasks of thisProject is 0 then
+					set cRemainTasks to 0
 					
-					set statusProject to "deferred"
+					set cRemainTasksTags to 0
 					
-				else if (number of available tasks of thisProject is greater than or equal to 1) and (singleton action holder of thisProject as boolean is false) then
+					set cWaitingTasks to 0
 					
-					set i to 0
+					set cDeferredTasks to 0
 					
-					if (sequential of thisProject as boolean is true) then
+					--- iterate through every remaining task of the project
+					
+					repeat with thisTask in (flattened tasks of thisProject whose effectively completed is false and effectively dropped is false)
 						
-						if _versionOF ³ 3 then
-							
-							set _context to name of primary tag of next task of thisProject as string
-							
-						else
-							
-							set _context to name of context of next task of thisProject as string
-							
-						end if
+						set cRemainTasks to cRemainTasks + 1
 						
-						if _context is not missing value and _context contains "wait" then
+						if thisTask's primary tag is not missing value then
 							
-							set i to i + 1
+							set cRemainTasksTags to cRemainTasksTags + 1
 							
-						end if
-						
-					else
-						
-						repeat with thisTask in (every task of thisProject whose completed is not true)
-							
-							if _versionOF ³ 3 then
+							if thisTask's primary tag's name contains "wait" then
 								
-								try --- hacky solution around primary tag missing value
-									
-									if (name of primary tag of thisTask as string) contains "wait" then
-										
-										set i to i + 1
-										
-									end if
-									
-								end try
-								
-							else
-								
-								if (name of context of thisTask as string) contains "wait" then
-									
-									set i to i + 1
-									
-								end if
+								set cWaitingTasks to cWaitingTasks + 1
 								
 							end if
 							
-						end repeat
+						end if
+						
+						if thisTask's defer date ² currentDate and thisTask's blocked is false then
+							
+							set cAvailTasks to cAvailTasks + 1
+							
+							if thisTask's primary tag is not missing value then
+								
+								set cAvailTasksTags to cAvailTasksTags + 1
+								
+							end if
+							
+						else
+							
+							set cDeferredTasks to cDeferredTasks + 1
+							
+						end if
+						
+					end repeat
+					
+					--- project has no remaining tasks
+					
+					if cRemainTasks = 0 then
+						
+						set projectStatus to "stalled (no tasks)"
 						
 					end if
 					
-					if i is equal to number of available tasks of thisProject then
+					--- project has remaining tasks with no tags
+					
+					if cRemainTasks > 0 and cRemainTasksTags = 0 then
 						
-						set statusProject to "waiting for 3rd party"
+						set projectStatus to "stalled (no tags)"
 						
 					end if
+					
+					--- all project's available tasks are "wait-for" context
+					
+					if cWaitingTasks = cAvailTasksTags and cRemainTasksTags > 0 then
+						
+						set projectStatus to "waiting"
+						
+					end if
+					
+					--- project has no available tasks but has remaining tasks
+					
+					if cAvailTasksTags = 0 and cRemainTasksTags > 0 then
+						
+						set projectStatus to "deferred (tasks)"
+						
+					end if
+					
+					--- project is deferred by project's defer date
+					
+					if thisProject's defer date is not missing value and thisProject's defer date ³ currentDate then
+						
+						if thisProject's defer date ³ currentDate and cRemainTasks = 0 then
+							
+							set projectStatus to "deferred (project)"
+							
+						end if
+						
+					end if
+					
+					--- rename project's status from "active status" to "active"
+					
+					if projectStatus is "active status" then
+						
+						set projectStatus to "active"
+						
+					end if
+					
+					--- project is on hold
+					
+				else if thisProject's status is on hold status then
+					
+					set projectStatus to "on hold"
 					
 				end if
 				
 			end if
 			
-			set value of attribute named "link" of style of text of second cell of newRow to "omnifocus:///task/" & id of thisProject
+			set text of third cell of newRow to projectStatus
 			
-			set text of third cell of newRow to statusProject
+			(*
+			
+			add OmniFocus project due date
+			
+			*)
 			
 			if due date of thisProject is not equal to missing value then
 				
 				set value of fourth cell of newRow to due date of thisProject as date
 				
 			end if
+			
+			(*
+			
+			add OmniFocus root folder name of the project
+			
+			*)
 			
 			set text of fifth cell of newRow to rootFolderName as string
 			
