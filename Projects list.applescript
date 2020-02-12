@@ -71,9 +71,13 @@ tell application "OmniOutliner"
 				
 				*)
 				
-				set rootFolderName to folder of thisProject
+				set rootFolder to folder of thisProject
 				
-				if rootFolderName is missing value then --- checking for root level projects
+				set rootFolderName to name of rootFolder
+				
+				set folderName to name of folder of thisProject
+				
+				if rootFolder is missing value then --- checking for root level projects
 					
 					set rootFolderName to "n/a"
 					
@@ -87,17 +91,25 @@ tell application "OmniOutliner"
 				
 				repeat until foundRootFolderName is true
 					
-					set upperFolder to container of rootFolderName
+					set upperFolder to container of rootFolder
 					
-					if name of upperFolder is equal to "OmniFocus" then
+					set upperFolderName to name of upperFolder
+					
+					if upperFolderName is equal to "OmniFocus" then
 						
-						set rootFolderName to name of rootFolderName as string
+						set rootFolderName to name of rootFolder as string
+						
+						if folderName is not equal to rootFolderName then
+							
+							set rootFolderName to rootFolderName & " (" & folderName & ")" as string
+							
+						end if
 						
 						set foundRootFolderName to true
 						
 					else
 						
-						set rootFolderName to upperFolder
+						set rootFolder to upperFolder
 						
 					end if
 					
