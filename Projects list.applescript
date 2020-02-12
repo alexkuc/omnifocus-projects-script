@@ -165,6 +165,8 @@ tell application "OmniOutliner"
 					
 					set cDeferredTasks to 0
 					
+					set bFirstAvailTaskIsWaiting to false
+					
 					--- iterate through every remaining task of the project
 					
 					repeat with thisTask in (flattened tasks of thisProject whose effectively completed is false and effectively dropped is false)
@@ -201,6 +203,30 @@ tell application "OmniOutliner"
 						
 					end repeat
 					
+					--- check if first available task is "wait-for" for sequential projects
+					
+					set tmpVar to missing value
+					
+					if thisProject is sequential and next task of thisProject is not missing value then
+						
+						if primary tag of next task of thisProject is not missing value then
+							
+							if name of primary tag of next task of thisProject is not missing value then
+								
+								set tmpVar to name of primary tag of next task of thisProject
+								
+							end if
+							
+						end if
+						
+					end if
+					
+					if tmpVar contains "wait" then
+						
+						set bFirstAvailTaskIsWaiting to true
+						
+					end if
+					
 					--- project has no remaining tasks
 					
 					if cRemainTasks = 0 then
@@ -219,7 +245,7 @@ tell application "OmniOutliner"
 					
 					--- all project's available tasks are "wait-for" context
 					
-					if cWaitingTasks = cAvailTasksTags and cRemainTasksTags > 0 then
+					if cWaitingTasks > 0 and (cAvailTasksTags = cWaitingTasks or bFirstAvailTaskIsWaiting is true) then
 						
 						set projectStatus to "waiting"
 						
@@ -227,7 +253,7 @@ tell application "OmniOutliner"
 					
 					--- project has no available tasks but has remaining tasks
 					
-					if cAvailTasksTags = 0 and cRemainTasksTags > 0 then
+					if thisProject's defer date is missing value and cAvailTasksTags = 0 and cRemainTasksTags > 0 then
 						
 						set projectStatus to "deferred (tasks)"
 						
@@ -237,11 +263,7 @@ tell application "OmniOutliner"
 					
 					if thisProject's defer date is not missing value and thisProject's defer date ³ currentDate then
 						
-						if thisProject's defer date ³ currentDate and cRemainTasks = 0 then
-							
-							set projectStatus to "deferred (project)"
-							
-						end if
+						set projectStatus to "deferred (project)"
 						
 					end if
 					
