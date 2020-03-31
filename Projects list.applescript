@@ -73,9 +73,17 @@ tell application "OmniOutliner"
 				
 				set rootFolder to folder of thisProject
 				
-				set rootFolderName to name of rootFolder
+				set rootFolderName to missing value
 				
-				set folderName to name of folder of thisProject
+				if folder of thisProject is not missing value then
+					
+					set folderName to name of folder of thisProject
+					
+				else
+					
+					set folderName to missing value
+					
+				end if
 				
 				if rootFolder is missing value then --- checking for root level projects
 					
