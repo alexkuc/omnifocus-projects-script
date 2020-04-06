@@ -34,6 +34,21 @@ tell application "OmniOutliner"
 		
 		(*
 		
+		ask user whether to display current projects or on-hold
+		
+		*)
+		
+		set userChoice to display dialog "Which projects to display?
+(will self-close in 5 seconds)" buttons {"Active", "On-Hold", "All"} default button 1 giving up after 5
+		
+		if gave up of userChoice is true then
+			
+			return
+			
+		end if
+		
+		(*
+		
 		create custom named styles
 		
 		*)
@@ -80,7 +95,25 @@ tell application "OmniOutliner"
 		
 		*)
 		
-		repeat with thisProject in (flattened projects of default document whose (effective status is active status or effective status is on hold status))
+		if button returned of userChoice is "Active" then
+			
+			set _projects to flattened projects of default document whose effective status is active status
+			
+		else if button returned of userChoice is "On-Hold" then
+			
+			set _projects to flattened projects of default document whose effective status is on hold status
+			
+		else if button returned of userChoice is "All" then
+			
+			set _projects to flattened projects of default document whose (effective status is active status or effective status is on hold status)
+			
+		else
+			
+			error "Reached primary loop but user choice is undetermined!"
+			
+		end if
+		
+		repeat with thisProject in _projects
 			
 			using terms from application "OmniFocus" --- workaround for "folder" term collision (future use)	
 				
