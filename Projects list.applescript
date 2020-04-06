@@ -32,14 +32,33 @@ tell application "OmniOutliner"
 			
 		end tell
 		
+		(*
 		
-		set title of second column to "Project Name"
+		create custom named styles
+		
+		*)
+		
+		delete named styles
+		
+		set _green to make named style with properties {name:"Green highlight"}
+		
+		set value of attribute "text-background-color" of _green to {r:0.470589, g:0.768627, b:0.270588, a:0.25}
+		
+		set _yellow to make named style with properties {name:"Yellow highlight"}
+		
+		set value of attribute "text-background-color" of _yellow to {r:1.0, g:0.774726, b:0.0, a:0.25}
+		
+		set _red to make named style with properties {name:"Red highlight"}
+		
+		set value of attribute "text-background-color" of _red to {r:0.968049, g:0.472297, b:0.539657, a:0.25}
 		
 		(*
 		
 		create columns in OmniOutliner
 		
 		*)
+		
+		set title of second column to "Project Name"
 		
 		make new column with properties {title:"Project Status"}
 		
