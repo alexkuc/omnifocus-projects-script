@@ -75,11 +75,11 @@ tell application "OmniOutliner"
 		
 		set title of second column to "Project Name"
 		
-		make new column with properties {title:"Project Status"}
+		make new column with properties {title:"Project Status", sort order:ascending}
 		
 		make new column with properties {title:"Project Due Date", column type:datetime}
 		
-		make new column with properties {title:"Root Folder", sort order:ascending}
+		make new column with properties {title:"Root Folder"}
 		
 		(*
 		
