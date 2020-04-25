@@ -161,7 +161,7 @@ tell application "OmniOutliner"
 						
 						if folderName is not equal to rootFolderName then
 							
-							set rootFolderName to rootFolderName & " (" & folderName & ")" as string
+							set rootFolderName to folderName & " (" & rootFolderName & ")" as string
 							
 						end if
 						
